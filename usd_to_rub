@@ -1,0 +1,24 @@
+from urllib.request import urlopen 
+from xml.etree import ElementTree as ET 
+from urllib.error import URLError, HTTPError
+
+def usd_to_rub(usd, xml_url):
+	currency = ET.parse(xml_url)
+	val_curs = currency.findall('Valute')
+	for valute in val_curs:
+		char_code = valute[1].text
+		rub = 1
+		if char_code == 'USD':
+			rub = float((valute[4].text).replace(",",".")) * usd
+			return rub
+
+try:
+	try_to_open = urlopen('http://www.cbr.ru/scripts/XML_daily.asp?date_req')
+	print("Enter an amount in USD: ", end='');
+	usd = float(input())
+	rub = usd_to_rub(usd, try_to_open)
+	print("Currency Market:\n" + str(usd) + " USD => " + "%.2f" % rub + " RUB.")
+except HTTPError as e:
+	print('Error code: ', e.reason)
+except URLError as e:
+	print('Reason: ', e.reason)
